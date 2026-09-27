@@ -1,0 +1,20 @@
+# Only used when GROUP_BY=rules. Copy this file to categories.yaml.
+#
+# Useful when your products have no product type set in Shopify. Each product is put
+# in the first category whose keywords appear in its title (capital letters do not
+# matter). Products that match nothing go under "Other". Order matters: put the most
+# specific categories first, so "Repotting kit with grow bag" lands in Kits, not Grow bags.
+
+Kits:
+  - kit
+  - combo
+Grow bags:
+  - grow bag
+  - planter bag
+Soil and fertilizer:
+  - potting mix
+  - cocopeat
+  - compost
+  - fertilizer
+Seeds:
+  - seed

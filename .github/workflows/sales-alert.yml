@@ -1,0 +1,91 @@
+name: Daily sales report
+
+on:
+  schedule:
+    # Cron times are in UTC. 03:30 UTC is 09:00 in India (IST, UTC+5:30).
+    # Work out your own time at https://crontab.guru
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build the email without sending it (download the preview from the run page)"
+        type: boolean
+        default: false
+      report_date:
+        description: "Report a different day, as YYYY-MM-DD (leave empty for yesterday)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sales-alert
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check the store is configured
+        id: setup
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+        run: |
+          if [ -z "$SHOPIFY_STORE_DOMAIN" ]; then
+            echo "::warning title=Not configured yet::Add the SHOPIFY_STORE_DOMAIN secret and the others listed in the README to start getting emails."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.setup.outputs.configured == 'true'
+
+      - uses: actions/setup-python@v7
+        if: steps.setup.outputs.configured == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.setup.outputs.configured == 'true'
+        run: pip install -r requirements.txt
+
+      - name: Build and send the report
+        if: steps.setup.outputs.configured == 'true'
+        env:
+          # Secrets: Settings > Secrets and variables > Actions > Secrets
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          SHOPIFY_CLIENT_ID: ${{ secrets.SHOPIFY_CLIENT_ID }}
+          SHOPIFY_CLIENT_SECRET: ${{ secrets.SHOPIFY_CLIENT_SECRET }}
+          EMAIL_API_KEY: ${{ secrets.EMAIL_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          # Optional settings: Settings > Secrets and variables > Actions > Variables
+          EMAIL_PROVIDER: ${{ vars.EMAIL_PROVIDER }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SHOPIFY_API_VERSION: ${{ vars.SHOPIFY_API_VERSION }}
+          STORE_NAME: ${{ vars.STORE_NAME }}
+          REPORT_TIMEZONE: ${{ vars.REPORT_TIMEZONE }}
+          BRAND_COLOR: ${{ vars.BRAND_COLOR }}
+          GROUP_BY: ${{ vars.GROUP_BY }}
+          CATEGORY_RULES_FILE: ${{ vars.CATEGORY_RULES_FILE }}
+          TOP_N: ${{ vars.TOP_N }}
+          INCLUDE_TEST_ORDERS: ${{ vars.INCLUDE_TEST_ORDERS }}
+          SEND_WHEN_NO_ORDERS: ${{ vars.SEND_WHEN_NO_ORDERS }}
+          REPORT_DATE: ${{ inputs.report_date }}
+          DRY_RUN: ${{ inputs.dry_run && 'true' || 'false' }}
+        run: python -m sales_alert
+
+      - name: Keep the email preview
+        if: steps.setup.outputs.configured == 'true' && inputs.dry_run
+        uses: actions/upload-artifact@v7
+        with:
+          name: email-preview
+          path: email-preview.html
+          retention-days: 7

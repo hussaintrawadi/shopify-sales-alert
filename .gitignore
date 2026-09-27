@@ -1,0 +1,19 @@
+# Local settings and secrets
+.env
+.env.*
+!.env.example
+
+# Output
+email-preview.html
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
