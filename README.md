@@ -3,6 +3,7 @@
 [![Tests](https://github.com/hussaintrawadi/shopify-sales-alert/actions/workflows/tests.yml/badge.svg)](https://github.com/hussaintrawadi/shopify-sales-alert/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
+[![Vibe coded with Claude](https://img.shields.io/badge/vibe%20coded%20with-Claude-D97757.svg)](https://claude.com/claude-code)
 
 Yesterday's Shopify sales in your inbox every morning: revenue, orders, units, average order value, and what sold best. It runs on GitHub Actions for free, so there is no server to host and nothing running on your laptop.
 
@@ -202,4 +203,4 @@ Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Fo
 
 ## License
 
-[MIT](LICENSE). Built by [Hussain Trawadi](https://github.com/hussaintrawadi). It started as a private automation for a D2C brand's founder and was rebuilt here so any Shopify store can use it.
+[MIT](LICENSE). Built by [Hussain Trawadi](https://github.com/hussaintrawadi), vibe coded with [Claude](https://claude.com/claude-code). It started as a private automation for a D2C brand's founder and was rebuilt here so any Shopify store can use it.
